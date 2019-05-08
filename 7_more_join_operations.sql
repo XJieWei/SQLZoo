@@ -8,7 +8,7 @@ SELECT yr
 FROM movie
 WHERE title = 'Citizen Kane';
 
--- # 3. List all of the Star Trek movies, include the id, title and yr
+-- # 3-1. List all of the Star Trek movies, include the id, title and yr
 -- # (all of these movies include the words Star Trek in the
 -- # title). Order results by year.
 SELECT id, title, yr
@@ -16,22 +16,22 @@ FROM movie
 WHERE title LIKE '%Star Trek%'
 ORDER BY yr;
 
--- # 4. What are the titles of the films with id 11768, 11955, 21191.
+-- # 3-2. What are the titles of the films with id 11768, 11955, 21191.
 SELECT title
 FROM movie
 WHERE id IN (11768, 11955, 21191);
 
--- # 5. What id number does the actor 'Glenn Close' have?
+-- # 4. What id number does the actor 'Glenn Close' have?
 SELECT id
 FROM actor
 WHERE name = 'Glenn Close';
 
--- # 6. What is the id of the film 'Casablanca'
+-- # 5. What is the id of the film 'Casablanca'
 SELECT id
 FROM movie
 WHERE title = 'Casablanca';
 
--- # 7. Obtain the cast list for 'Casablanca'. Use the id value that
+-- # 6. Obtain the cast list for 'Casablanca'. Use the id value that
 -- # you obtained in the previous question.
 SELECT actor.name
 FROM actor
@@ -39,7 +39,7 @@ JOIN casting
 ON casting.actorid = actor.id
 WHERE casting.movieid = 11768;
 
--- # 8. Obtain the cast list for the film 'Alien'.
+-- # 7. Obtain the cast list for the film 'Alien'.
 SELECT actor.name
 FROM actor
 JOIN casting
@@ -48,7 +48,7 @@ JOIN movie
 ON movie.id = casting.movieid
 WHERE movie.title = 'Alien';
 
--- # 9. List the films in which 'Harrison Ford' has appeared
+-- # 8. List the films in which 'Harrison Ford' has appeared
 SELECT movie.title
 FROM movie
 JOIN casting
@@ -57,7 +57,7 @@ JOIN actor
 ON actor.id = casting.actorid
 WHERE actor.name = 'Harrison Ford';
 
--- # 10. List the films where 'Harrison Ford' has appeared - but not in
+-- # 9. List the films where 'Harrison Ford' has appeared - but not in
 -- # the star role. [Note: the ord field of casting gives the position
 -- # of the actor. If ord=1 then this actor is in the starring role]
 SELECT movie.title
@@ -69,7 +69,7 @@ ON actor.id = casting.actorid
 WHERE actor.name = 'Harrison Ford'
 AND casting.ord != 1;
 
--- # 11. List the films together with the leading star for all 1962 films.
+-- # 10. List the films together with the leading star for all 1962 films.
 SELECT movie.title, actor.name
 FROM movie
 JOIN casting
@@ -79,7 +79,7 @@ ON actor.id = casting.actorid
 WHERE movie.yr = 1962
 AND casting.ord = 1;
 
--- # 12. Which were the busiest years for 'John Travolta', show the
+-- # 11. Which were the busiest years for 'John Travolta', show the
 -- # year and the number of movies he made each year for any year in
 -- # which he made at least 2 movies.
 SELECT movie.yr, COUNT(*)
@@ -92,7 +92,7 @@ WHERE actor.name = 'John Travolta'
 GROUP BY movie.yr
 HAVING COUNT(movie.title) >= 2;
 
--- # 13. List the film title and the leading actor for all of 'Julie
+-- # 12. List the film title and the leading actor for all of 'Julie
 -- # Andrews' films.
 SELECT DISTINCT m.title, a.name
 FROM (SELECT movie.*
@@ -110,7 +110,7 @@ JOIN (SELECT actor.*, casting.movieid AS movieid
 ON m.id = a.movieid
 ORDER BY m.title;
 
--- # 14. Obtain a list of actors in who have had at least 30 starring
+-- # 13. Obtain a list of actors in who have had at least 30 starring
 -- # roles.
 SELECT actor.name
 FROM actor
@@ -120,16 +120,15 @@ WHERE casting.ord = 1
 GROUP BY actor.name
 HAVING COUNT(*) >= 30;
 
--- # 15. List the 1978 films by order of cast list size.
-SELECT movie.title, COUNT(*)
-FROM movie
-JOIN casting
-ON movie.id = casting.movieid
-WHERE movie.yr = 1978
-GROUP BY movie.id
-ORDER BY COUNT(*) DESC
+-- # 14. List the films released in the year 1978 ordered by the number of actors in the cast, then by title.
+SELECT title, COUNT(name)
+FROM casting JOIN movie ON movieid=movie.id JOIN actor ON actorid=actor.id
+WHERE yr = 1978
+GROUP BY title
+ORDER by COUNT(name) DESC,title;
 
--- # 16. List all the people who have worked with 'Art Garfunkel'.
+-- # 15. List all the people who have worked with 'Art Garfunkel'.
+-- [1st way]
 SELECT a.name
   FROM (SELECT movie.*
           FROM movie
@@ -144,3 +143,11 @@ SELECT a.name
             ON casting.actorid = actor.id
          WHERE actor.name != 'Art Garfunkel') as a
     ON m.id = a.movieid;
+    
+-- [2nd way]    
+SELECT DISTINCT(name)
+FROM casting JOIN movie ON movieid=movie.id JOIN actor ON actorid=actor.id
+WHERE title IN (SELECT title 
+                FROM casting JOIN movie ON movieid=movie.id JOIN actor ON actorid=actor.id
+                WHERE name = 'Art Garfunkel')
+            AND name !='Art Garfunkel';    
