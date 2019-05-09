@@ -3,11 +3,21 @@ SELECT name
   FROM teacher
  WHERE dept IS NULL;
 
+-- # 2. Note the INNER JOIN misses the teachers with no department and the departments with no teacher.
+SELECT teacher.name, dept.name
+FROM teacher INNER JOIN dept
+ON (teacher.dept=dept.id);
+
 -- # 3. Use a different JOIN so that all teachers are listed.
+-- [1st way]
 SELECT teacher.name, dept.name
 FROM teacher
 LEFT OUTER JOIN dept
 ON teacher.dept = dept.id;
+-- [2nd way]
+SELECT teacher.name, dept.name
+FROM teacher LEFT JOIN dept
+ON (teacher.dept=dept.id);
 
 -- # 4. Use a different JOIN so that all departments are listed.
 SELECT teacher.name, dept.name
@@ -24,8 +34,8 @@ SELECT name, COALESCE(mobile, '07986 444 2266')
 -- # 6. Use the COALESCE function and a LEFT JOIN to print the name and
 -- #department name. Use the string 'None' where there is no
 -- #department.
-SELECT name, COALESCE(dept, 'None')
-  FROM teacher;
+SELECT teacher.name AS teacher,COALESCE(dept.name,'None') AS dept
+FROM teacher LEFT JOIN dept ON teacher.dept=dept.id;
 
 -- # 7. Use COUNT to show the number of teachers and the number of
 -- #mobile phones.
